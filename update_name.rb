@@ -40,17 +40,27 @@ stream_client.user do |status|
     name = status.text.gsub("(@#{sn})","")
     name.strip!
 
-    if name.length > 20 # 変更する名前が20文字以上の時
-      option = {"in_reply_to_status_id" => status.id.to_s}
-      tweet = "@#{status.user.screen_name} 「#{name}」は文字数オーバーです"
-      client.update tweet,option
-      puts "[System] over naming -> \'#{name}\' by @#{status.user.screen_name}"
-    else
-      client.update_profile(:name => name)
-      option = {"in_reply_to_status_id" => status.id.to_s}
-      tweet = "@#{status.user.screen_name} 「#{name}」に名前を変えました"
-      client.update tweet,option
-      puts "[System] Renamed -> \'#{name}\' by @#{status.user.screen_name}"
+    begin
+      if name.length > 20 # 変更する名前が20文字以上の時
+        option = {"in_reply_to_status_id" => status.id.to_s}
+        tweet = "@#{status.user.screen_name} 「#{name}」は文字数オーバーです"
+        client.update tweet,option
+        puts "[System] over naming -> \'#{name}\' by @#{status.user.screen_name}"
+      else
+        client.update_profile(:name => name)
+        option = {"in_reply_to_status_id" => status.id.to_s}
+        tweet = "@#{status.user.screen_name} 「#{name}」に名前を変えました"
+        client.update tweet,option
+        puts "[System] Renamed -> \'#{name}\' by @#{status.user.screen_name}"
+      end
+    rescue
+      puts 'update_name denied.'
+      notice = "@#{status.user.screen_name} 変更に失敗しました: #{name}"
+      if notice.length < 140
+        @rest_client.update("@#{status.user.screen_name} 変更に失敗しました: #{name}")
+      else
+        @rest_client.update("@#{status.user.screen_name} 変更に失敗しました")
+      end
     end
   end
 end
