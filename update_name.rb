@@ -18,10 +18,11 @@ stream_client = Twitter::Streaming::Client.new do |config|
 end
 sn = 'AyaTokikaze'
 
+# 自分以外の人がupdate_nameできるかどうか
+# default: false
+permission = false
+
 stream_client.user do |status|
-  # 自分以外の人がupdate_nameできるかどうか
-  # default: false
-  permission = false
   next unless status.is_a? Twitter::Tweet
   next if status.text.start_with? "RT"
 
@@ -37,6 +38,28 @@ stream_client.user do |status|
 
     name = status.text.gsub("@#{sn}\supdate_name\s","").gsub("(@#{sn})","")
     name.strip!
+    
+    if name == 'lock'
+      option = {"in_reply_to_status_id" => status.id.to_s}
+      if !permission
+        tweet = "@#{status.user.screen_name} すでにロックされています"
+      else
+        permission = true
+        tweet = "@#{status.user.screen_name} アンロック!!(๑˃̵ᴗ˂̵)و"
+      end
+      client.update tweet,option
+      next
+    elsif name == 'unlock'
+      option = {"in_reply_to_status_id" => status.id.to_s}
+      if permission
+        tweet = "@#{status.user.screen_name} すでにアンロックされています"
+      else
+        permission = false
+        tweet = "@#{status.user.screen_name} ロックしました(๑˃̵ᴗ˂̵)و"
+      end
+      client.update tweet,option
+      next
+    end
 
     begin
       option = {"in_reply_to_status_id" => status.id.to_s}
