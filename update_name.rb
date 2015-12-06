@@ -51,7 +51,7 @@ stream_client.user do |status|
         client.update tweet,option
         puts "[System] Renamed -> \'#{name}\' by @#{status.user.screen_name}"
       end
-    rescue　=> ex
+    rescue => ex
       puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{status.user.screen_name}\n"
       notice = "@#{status.user.screen_name} 変更に失敗しました -> #{ex.class}"
       if notice.length < 140
