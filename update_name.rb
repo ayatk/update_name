@@ -21,7 +21,7 @@ sn = 'AyaTokikaze'
 stream_client.user do |status|
   # 自分以外の人がupdate_nameできるかどうか
   # default: false
-  permission = false
+  permission = true
   next unless status.is_a? Twitter::Tweet
   next if status.text.start_with? "RT"
 
