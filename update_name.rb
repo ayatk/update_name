@@ -39,17 +39,23 @@ stream_client.user do |status|
     name.strip!
 
     begin
-      if name.length > 20 # 変更する名前が20文字以上の時
+      if name.length == 0 # 変更する名前が0文字の時
         option = {"in_reply_to_status_id" => status.id.to_s}
-        tweet = "@#{status.user.screen_name} 「#{name}」は文字数オーバーです"
+        tweet = "@#{status.user.screen_name} 0文字はダメですo(｀ω´*)oﾌﾟﾝｽｶﾌﾟﾝｽｶ!!"
         client.update tweet,option
-        puts "[System] over naming -> \'#{name}\' by @#{status.user.screen_name}"
-      else
+        puts "[System] named at 0character by @#{status.user.screen_name}"
+      elsif name.length < 20
         client.update_profile(:name => name)
         option = {"in_reply_to_status_id" => status.id.to_s}
         tweet = "@#{status.user.screen_name} 「#{name}」に名前を変えました"
         client.update tweet,option
         puts "[System] Renamed -> \'#{name}\' by @#{status.user.screen_name}"
+      else # 変更する名前が20文字以上の時
+        option = {"in_reply_to_status_id" => status.id.to_s}
+        tweet = "@#{status.user.screen_name} 「#{name}」は文字数オーバーです"
+        client.update tweet,option
+        puts "[System] over naming -> \'#{name}\' by @#{status.user.screen_name}"
+
       end
     rescue => ex
       puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{status.user.screen_name}\n"
