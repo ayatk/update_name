@@ -21,7 +21,7 @@ sn = 'AyaTokikaze'
 stream_client.user do |status|
   # 自分以外の人がupdate_nameできるかどうか
   # default: false
-  permission = true
+  permission = false
   next unless status.is_a? Twitter::Tweet
   next if status.text.start_with? "RT"
 
@@ -55,7 +55,6 @@ stream_client.user do |status|
         tweet = "@#{status.user.screen_name} 「#{name}」は文字数オーバーです"
         client.update tweet,option
         puts "[System] over naming -> \'#{name}\' by @#{status.user.screen_name}"
-
       end
     rescue => ex
       puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{status.user.screen_name}\n"
