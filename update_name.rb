@@ -25,7 +25,7 @@ stream_client.user do |status|
   next unless status.is_a? Twitter::Tweet
   next if status.text.start_with? "RT"
 
-  if status.text =~ /^(?!RT)(.*@#{sn}\supdate_name\s((.|\n)+?)|.+?\(@#{sn}\))$/
+  if status.text =~ /^((?!RT).*@#{sn}\supdate_name\s((.|\n)+?)|.+?\(@#{sn}\))$/
     # 許可されていないユーザーのupdate_nameをブロック
     if status.user.screen_name != sn && !permission
       option = {"in_reply_to_status_id" => status.id.to_s}
@@ -35,8 +35,7 @@ stream_client.user do |status|
       next
     end
 
-    name = status.text.gsub("@#{sn}\supdate_name\s","")
-    name = status.text.gsub("(@#{sn})","")
+    name = status.text.gsub("@#{sn}\supdate_name\s","").gsub("(@#{sn})","")
     name.strip!
 
     begin
