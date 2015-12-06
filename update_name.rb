@@ -24,7 +24,6 @@ stream_client.user do |status|
   permission = false
   next unless status.is_a? Twitter::Tweet
   next if status.text.start_with? "RT"
-  when condition
 
   if status.text =~ /^(?!RT)(.*@#{sn}\supdate_name\s((.|\n)+?)|.+?\(@#{sn}\))$/
     # 許可されていないユーザーのupdate_nameをブロック
