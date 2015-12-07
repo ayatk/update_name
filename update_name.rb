@@ -39,25 +39,38 @@ stream_client.user do |status|
     name = status.text.gsub("@#{sn}\supdate_name\s","").gsub("(@#{sn})","")
     name.strip!
 
-    if name == 'lock' && status.user.screen_name == sn
-      option = {"in_reply_to_status_id" => status.id.to_s}
-      if !permission
-        tweet = "@#{status.user.screen_name} すでにロックされています"
-      else
-        permission = false
-        tweet = "@#{status.user.screen_name} ロックしました(๑˃̵ᴗ˂̵)و"
+    if status.user.screen_name == sn
+      if name == 'lock'
+        option = {"in_reply_to_status_id" => status.id.to_s}
+        if !permission
+          tweet = "@#{status.user.screen_name} すでにロックされています"
+          puts "[System] alrady locked -> \'#{name}\' by @#{status.user.screen_name}"
+        else
+          permission = false
+          tweet = "@#{status.user.screen_name} ロックしました(๑˃̵ᴗ˂̵)و"
+          puts "[System] locked update_name -> \'#{name}\' by @#{status.user.screen_name}"
+        end
+        client.update tweet,option
+        next
+      elsif name == 'unlock' && status.user.screen_name == sn
+        option = {"in_reply_to_status_id" => status.id.to_s}
+        if permission
+          tweet = "@#{status.user.screen_name} すでにアンロックされています"
+          puts "[System] alrady unlocked -> \'#{name}\' by @#{status.user.screen_name}"
+        else
+          permission = true
+          tweet = "@#{status.user.screen_name} アンロック!!(๑˃̵ᴗ˂̵)و"
+          puts "[System] unlocked update_name -> \'#{name}\' by @#{status.user.screen_name}"
+
+        end
+        client.update tweet,option
+        next
       end
-      client.update tweet,option
-      next
-    elsif name == 'unlock' && status.user.screen_name == sn
+    else
       option = {"in_reply_to_status_id" => status.id.to_s}
-      if permission
-        tweet = "@#{status.user.screen_name} すでにアンロックされています"
-      else
-        permission = true
-        tweet = "@#{status.user.screen_name} アンロック!!(๑˃̵ᴗ˂̵)و"
-      end
+      tweet = "@#{status.user.screen_name} そのコマンドは使えません"
       client.update tweet,option
+      puts "[System] Blocked command -> \'#{name}\' by @#{status.user.screen_name}"
       next
     end
 
