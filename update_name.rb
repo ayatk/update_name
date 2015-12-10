@@ -33,25 +33,24 @@ stream_client.user do |status|
   next if status.text.start_with? "RT"
   case status.text
   when update_str1
-	name = status.text.gsub("@#{sn}\supdate_name\s","")
-    update_profile_name(name, status.user.screen_name)
+	name = status.text.gsub("@#{sn}\supdate_name\s","").strip!
+    update_profile_name(name, status.user.screen_name, status.id.to_s)
   when update_str2
-	name = status.text.gsub(/[（\(]@#{sn}[）\)]/, "")
-    update_profile_name(name, status.user.screen_name)
+	name = status.text.gsub(/[（\(]@#{sn}[）\)]/, "").strip!
+    update_profile_name(name, status.user.screen_name, status.id.to_s)
   end
 end
 
-def update_profile_name(name, user_sn)
-  name.strip!
+def update_profile_name(name, user_sn, reply_id)
   begin
     client.update_profile(:name => name)
     tweet = "@#{user_sn} #{name}になりました"
     puts "[System] Renamed -> \'#{name}\' by @#{user_sn}"
-    client.update(tweet,:in_reply_to_status_id => status.id.to_s)
+    client.update(tweet,:in_reply_to_status_id => reply_id)
   rescue => ex
     puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{user_sn}\n"
     tweet = "@#{user_sn} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
-    client.update(tweet,:in_reply_to_status_id => status.id.to_s)
+    client.update(tweet,:in_reply_to_status_id => reply_id)
   end
 end
 
