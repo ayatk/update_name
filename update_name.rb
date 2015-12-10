@@ -55,7 +55,6 @@ def update_name(name)
     puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{status.user.screen_name}\n"
     tweet = "@#{status.user.screen_name} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
     client.update(tweet,:in_reply_to_status_id => status.id.to_s)
-    next
   end
 end
 
