@@ -15,19 +15,6 @@ stream_client = Twitter::Streaming::Client.new do |config|
   config.access_token_secret = ENV["ACCESS_TOKEN_SECRET"]
 end
 
-def update_profile_name(name, user_sn, reply_id)
-  begin
-    client.update_profile(:name => name)
-    tweet = "@#{user_sn} #{name}になりました"
-    puts "[System] Renamed -> \'#{name}\' by @#{user_sn}"
-    client.update(tweet,:in_reply_to_status_id => reply_id)
-  rescue => ex
-    puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{user_sn}\n"
-    tweet = "@#{user_sn} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
-    client.update(tweet,:in_reply_to_status_id => reply_id)
-  end
-end
-
 # 自分のsn
 sn = 'AyaTokikaze'
 
@@ -49,9 +36,23 @@ stream_client.user do |status|
   case status.text
   when update_str1
 	name = status.text.gsub("@#{sn}\supdate_name\s","").strip!
-    update_profile_name(name, status.user.screen_name, status.id.to_s)
+    update_profile_name(name, status)
   when update_str2
 	name = status.text.gsub(/[（\(]@#{sn}[）\)]/, "").strip!
-    update_profile_name(name, status.user.screen_name, status.id.to_s)
+    update_profile_name(name, status)
   end
 end
+
+def update_profile_name(name, client)
+  begin
+    client.update_profile(:name => name)
+    tweet = "@#{client.user.screen_name} #{name}になりました"
+    puts "[System] Renamed -> \'#{name}\' by @#{client.user.screen_name}"
+    client.update(tweet,:in_reply_to_status_id => client.id.to_s)
+  rescue => ex
+    puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{client.user.screen_name}\n"
+    tweet = "@#{client.user.screen_name} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
+    client.update(tweet,:in_reply_to_status_id => client.id.to_s)
+  end
+end
+
