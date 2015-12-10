@@ -1,15 +1,15 @@
 # coding: utf-8
 require 'twitter'
 
-def update_profile_name(name, client)
+def update_profile_name(name, status, client)
   begin
     client.update_profile(:name => name)
-    tweet = "@#{client.user.screen_name} #{name}になりました"
+    tweet = "@#{status.user.screen_name} #{name}になりました"
     puts "[System] Renamed -> \'#{name}\' by @#{client.user.screen_name}"
     client.update(tweet,:in_reply_to_status_id => client.id.to_s)
   rescue => ex
     puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{client.user.screen_name}\n"
-    tweet = "@#{client.user.screen_name} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
+    tweet = "@#{status.user.screen_name} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
     client.update(tweet,:in_reply_to_status_id => client.id.to_s)
   end
 end
@@ -48,9 +48,9 @@ stream_client.user do |status|
   case status.text
   when update_str1
 	name = status.text.gsub("@#{sn}\supdate_name\s","").strip!
-    update_profile_name(name, status)
+    update_profile_name(name, status, client)
   when update_str2
 	name = status.text.gsub(/[（\(]@#{sn}[）\)]/, "").strip!
-    update_profile_name(name, status)
+    update_profile_name(name, status, client)
   end
 end
