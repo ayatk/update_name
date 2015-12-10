@@ -31,33 +31,27 @@ puts "[System] stert update_name server"
 stream_client.user do |status|
   next unless status.is_a? Twitter::Tweet
   next if status.text.start_with? "RT"
-  case status.user.screen_name
-  when sn
-    case status.text
-    when update_str1
-      name = status.text.gsub("@#{sn}\supdate_name\s","")
-      update_name(name)
-    when update_str2
-      name = status.text.gsub(/[（\(]@#{sn}[）\)]/, "")
-      update_name(name)
-    end
+  case status.text
+  when update_str1
+	name = status.text.gsub("@#{sn}\supdate_name\s","")
+    update_profile_name(name, status.user.screen_name)
+  when update_str2
+	name = status.text.gsub(/[（\(]@#{sn}[）\)]/, "")
+    update_profile_name(name, status.user.screen_name)
   end
 end
 
-def update_name(name)
+def update_profile_name(name, user_sn)
   name.strip!
   begin
     client.update_profile(:name => name)
-    tweet = "@#{status.user.screen_name} #{name}になりました"
-    puts "[System] Renamed -> \'#{name}\' by @#{status.user.screen_name}"
+    tweet = "@#{user_sn} #{name}になりました"
+    puts "[System] Renamed -> \'#{name}\' by @#{user_sn}"
     client.update(tweet,:in_reply_to_status_id => status.id.to_s)
   rescue => ex
-    puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{status.user.screen_name}\n"
-    tweet = "@#{status.user.screen_name} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
+    puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{user_sn}\n"
+    tweet = "@#{user_sn} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
     client.update(tweet,:in_reply_to_status_id => status.id.to_s)
   end
 end
 
-def permit
-
-end
