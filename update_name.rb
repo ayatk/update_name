@@ -6,11 +6,11 @@ def update_profile_name(name, status, client)
     client.update_profile(:name => name)
     tweet = "@#{status.user.screen_name} #{name}になりました"
     puts "[System] Renamed -> \'#{name}\' by @#{client.user.screen_name}"
-    client.update(tweet,:in_reply_to_status_id => client.id.to_s)
+    client.update(tweet,:in_reply_to_status_id => status.id.to_s)
   rescue => ex
     puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{client.user.screen_name}\n"
     tweet = "@#{status.user.screen_name} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
-    client.update(tweet,:in_reply_to_status_id => client.id.to_s)
+    client.update(tweet,:in_reply_to_status_id => status.id.to_s)
   end
 end
 
