@@ -47,10 +47,10 @@ stream_client.user do |status|
   next if status.text.start_with? "RT"
   case status.text
   when update_str1
-	name = status.text.gsub("@#{sn}\supdate_name\s","").strip!
+	name = status.text.gsub("@#{sn}\supdate_name\s","")
     update_profile_name(name, status, client)
   when update_str2
-	name = status.text.gsub(/[（\(]@#{sn}[）\)]/, "").strip!
+	name = status.text.gsub(/[（\(]@#{sn}[）\)]/, "")
     update_profile_name(name, status, client)
   end
 end
