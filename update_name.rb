@@ -1,6 +1,20 @@
 # coding: utf-8
 require 'twitter'
 
+def update_profile_name(name, client)
+  begin
+    client.update_profile(:name => name)
+    tweet = "@#{client.user.screen_name} #{name}になりました"
+    puts "[System] Renamed -> \'#{name}\' by @#{client.user.screen_name}"
+    client.update(tweet,:in_reply_to_status_id => client.id.to_s)
+  rescue => ex
+    puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{client.user.screen_name}\n"
+    tweet = "@#{client.user.screen_name} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
+    client.update(tweet,:in_reply_to_status_id => client.id.to_s)
+  end
+end
+
+
 client = Twitter::REST::Client.new do |config|
   config.consumer_key        = ENV["CONSUMER_KEY"]
   config.consumer_secret     = ENV["CONSUMER_SECRET"]
@@ -28,8 +42,6 @@ update_str2 = /^(?!RT).*[（\(]@#{sn}[）\)]$/
 
 puts "[System] stert update_name server"
 
-
-
 stream_client.user do |status|
   next unless status.is_a? Twitter::Tweet
   next if status.text.start_with? "RT"
@@ -42,17 +54,3 @@ stream_client.user do |status|
     update_profile_name(name, status)
   end
 end
-
-def update_profile_name(name, client)
-  begin
-    client.update_profile(:name => name)
-    tweet = "@#{client.user.screen_name} #{name}になりました"
-    puts "[System] Renamed -> \'#{name}\' by @#{client.user.screen_name}"
-    client.update(tweet,:in_reply_to_status_id => client.id.to_s)
-  rescue => ex
-    puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{client.user.screen_name}\n"
-    tweet = "@#{client.user.screen_name} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
-    client.update(tweet,:in_reply_to_status_id => client.id.to_s)
-  end
-end
-
