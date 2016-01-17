@@ -8,9 +8,6 @@ def update_profile_name(name, status, client)
     puts "[System] Renamed -> \'#{name}\' by @#{status.user.screen_name}"
     client.update(tweet,:in_reply_to_status_id => status.id.to_s)
   rescue => ex
-    puts "[System] update name denied for #{ex.class} -> \'#{name}\' by @#{status.user.screen_name}\n"
-    tweet = "@#{status.user.screen_name} 変更できませんでした…(m´・ω・｀)m ｺﾞﾒﾝ…ﾅｻｲ \n-> #{ex.class}"
-    client.update(tweet,:in_reply_to_status_id => status.id.to_s)
   end
 end
 
@@ -45,12 +42,13 @@ puts "[System] stert update_name server"
 stream_client.user do |status|
   next unless status.is_a? Twitter::Tweet
   next if status.text.start_with? "RT"
+  next if status.user.screen_name != sn
   case status.text
   when update_str1
-	name = status.text.gsub("@#{sn}\supdate_name\s","")
+	  name = status.text.gsub("@#{sn}\supdate_name\s","")
     update_profile_name(name, status, client)
   when update_str2
-	name = status.text.gsub(/[（\(]@#{sn}[）\)]/, "")
+	  name = status.text.gsub(/[（\(]@#{sn}[）\)]/, "")
     update_profile_name(name, status, client)
   end
 end
