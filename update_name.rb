@@ -5,29 +5,23 @@ def update_profile_name(name, status, client)
   begin
     client.update_profile(:name => name)
     tweet = "@#{status.user.screen_name} #{name}になりました"
-    puts "[System] Renamed -> \'#{name}\' by @#{status.user.screen_name}"
-    client.update(tweet,:in_reply_to_status_id => status.id.to_s)
+    puts "[System] Renamed -> '#{name}' by @#{status.user.screen_name}"
+    client.update(tweet, :in_reply_to_status_id => status.id.to_s)
   rescue => ex
+    # ignored
   end
 end
 
-
-client = Twitter::REST::Client.new do |config|
-  config.consumer_key        = ENV["CONSUMER_KEY"]
-  config.consumer_secret     = ENV["CONSUMER_SECRET"]
-  config.access_token        = ENV["ACCESS_TOKEN"]
-  config.access_token_secret = ENV["ACCESS_TOKEN_SECRET"]
+def symbolize_keys(hash)
+  hash.map { |k, v| [k.to_sym, v] }.to_h
 end
 
-stream_client = Twitter::Streaming::Client.new do |config|
-  config.consumer_key        = ENV["CONSUMER_KEY"]
-  config.consumer_secret     = ENV["CONSUMER_SECRET"]
-  config.access_token        = ENV["ACCESS_TOKEN"]
-  config.access_token_secret = ENV["ACCESS_TOKEN_SECRET"]
-end
+tokens = YAML.load_file('config.yml')
 
-# 自分のsn
-sn = 'AyaTokikaze'
+client = Twitter::REST::Client.new symbolize_keys(tokens)
+stream = Twitter::Streaming::Client.new symbolize_keys(tokens)
+
+sn = client.user.screen_name
 
 # 自分以外の人がupdate_nameできるかどうか
 # default: false
@@ -37,18 +31,19 @@ permission = false
 update_str1 = /^(?!RT).*@#{sn}\supdate_name\s((.|\n)+?)$/
 update_str2 = /^(?!RT).*[（\(]@#{sn}[）\)]$/
 
-puts "[System] stert update_name server"
+puts '[System] stert update_name server'
 
-stream_client.user do |status|
+stream.user do |status|
   next unless status.is_a? Twitter::Tweet
-  next if status.text.start_with? "RT"
+  next if status.text.start_with? 'RT'
   next if status.user.screen_name != sn
   case status.text
-  when update_str1
-	  name = status.text.gsub("@#{sn}\supdate_name\s","")
-    update_profile_name(name, status, client)
-  when update_str2
-	  name = status.text.gsub(/[（\(]@#{sn}[）\)]/, "")
-    update_profile_name(name, status, client)
+    when update_str1
+      name = status.text.gsub("@#{sn}\supdate_name\s", '')
+      update_profile_name(name, status, client)
+    when update_str2
+      name = status.text.gsub(/[（\(]@#{sn}[）\)]/, '')
+      update_profile_name(name, status, client)
+    else
   end
 end
