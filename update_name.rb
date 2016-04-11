@@ -1,5 +1,6 @@
 # coding: utf-8
 require 'twitter'
+require 'yaml'
 
 def update_profile_name(name, status, client)
   begin
@@ -12,14 +13,10 @@ def update_profile_name(name, status, client)
   end
 end
 
-def symbolize_keys(hash)
-  hash.map { |k, v| [k.to_sym, v] }.to_h
-end
+tokens = YAML.load_file('token.yml')
 
-tokens = YAML.load_file('config.yml')
-
-client = Twitter::REST::Client.new symbolize_keys(tokens)
-stream = Twitter::Streaming::Client.new symbolize_keys(tokens)
+client = Twitter::REST::Client.new tokens
+stream = Twitter::Streaming::Client.new tokens
 
 sn = client.user.screen_name
 
